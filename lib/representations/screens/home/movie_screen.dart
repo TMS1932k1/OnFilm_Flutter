@@ -3,9 +3,10 @@ import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/providers/movies_provider.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';
 import 'package:onfilm_app/representations/widgets/home/error_fetch_api.dart';
-import 'package:onfilm_app/representations/widgets/session_list.dart';
+import 'package:onfilm_app/representations/widgets/session_horizontal_list.dart';
 import 'package:onfilm_app/representations/widgets/home/slider_view.dart';
 import 'package:onfilm_app/representations/widgets/home/title_session.dart';
+import 'package:onfilm_app/representations/widgets/session_vertical_list.dart';
 import 'package:provider/provider.dart';
 
 class MovieScreen extends StatelessWidget {
@@ -22,32 +23,62 @@ class MovieScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CirculaProgressLoading();
         }
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Trend TV Show
-              _buildTrendMovie(
-                context,
-                size.width < 600 ? size.height * 0.6 : size.height * 0.45,
-              ),
-              // Now Playing
-              const TitleSession('Now Playing'),
-              _buildNowPlayingMovie(context),
-              // Top Rated
-              const TitleSession('Top Rated'),
-              _buildTopRatedMovie(context),
-              // Upcoming
-              const TitleSession('Upcoming'),
-              _buildUpcomingMovie(context),
-              // Popular
-              const TitleSession('Popular'),
-              _buildPopularMovie(context),
-            ],
-          ),
-        );
+
+        if (size.width >= 1200) {
+          return SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Row(
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: _buildContentVertical(context, size),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      const TitleSession('Top Rated'),
+                      Expanded(child: _buildTopRatedVerticalMovie(context)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return _buildContentVertical(context, size);
       },
     );
   }
+}
+
+Widget _buildContentVertical(BuildContext context, Size size) {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        // Trend TV Show
+        _buildTrendMovie(
+          context,
+          size.width < 1200 ? size.height * 0.5 : size.height * 0.6,
+        ),
+        // Now Playing
+        const TitleSession('Now Playing'),
+        _buildNowPlayingMovie(context),
+        if (size.width < 1200)
+          // Top Rated
+          const TitleSession('Top Rated'),
+        if (size.width < 1200) _buildTopRatedHorizontalMovie(context),
+        // Upcoming
+        const TitleSession('Upcoming'),
+        _buildUpcomingMovie(context),
+        // Popular
+        const TitleSession('Popular'),
+        _buildPopularMovie(context),
+      ],
+    ),
+  );
 }
 
 // Trend Movie
@@ -72,12 +103,12 @@ Widget _buildNowPlayingMovie(BuildContext context) {
     height: DimenssionConstant.kHeightSectionMovie,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }
 
-// Top Rated Movie
-Widget _buildTopRatedMovie(BuildContext context) {
+// Top Rated Movie Horizontal
+Widget _buildTopRatedHorizontalMovie(BuildContext context) {
   final response =
       Provider.of<MoviesProvider>(context, listen: false).responseTopRated;
 
@@ -86,7 +117,20 @@ Widget _buildTopRatedMovie(BuildContext context) {
         DimenssionConstant.kPandingSmall,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Top),
+        : SessionHorizontalList(response.films, SessionType.Top),
+  );
+}
+
+// Top Rated Movie Vertical
+Widget _buildTopRatedVerticalMovie(BuildContext context) {
+  final response =
+      Provider.of<MoviesProvider>(context, listen: false).responseTopRated;
+
+  return SizedBox(
+    height: double.infinity,
+    child: response!.error != null
+        ? ErrorFetchApi(response.error!)
+        : SessionVerticalList(response.films, SessionType.Top),
   );
 }
 
@@ -99,7 +143,7 @@ Widget _buildUpcomingMovie(BuildContext context) {
     height: DimenssionConstant.kHeightSectionMovie,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }
 
@@ -112,6 +156,6 @@ Widget _buildPopularMovie(BuildContext context) {
     height: DimenssionConstant.kHeightSectionMovie,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }

@@ -5,11 +5,11 @@ import 'package:onfilm_app/models/film.dart';
 import 'package:onfilm_app/representations/screens/detail/detail_screen.dart';
 import 'package:onfilm_app/representations/widgets/load_image.dart';
 
-class TopSessionItem extends StatelessWidget {
+class TopSessionHorizontalItem extends StatelessWidget {
   final Film film;
   final int top;
 
-  const TopSessionItem(
+  const TopSessionHorizontalItem(
     this.film,
     this.top, {
     super.key,

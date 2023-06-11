@@ -3,9 +3,10 @@ import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/providers/tv_shows_provider.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';
 import 'package:onfilm_app/representations/widgets/home/error_fetch_api.dart';
-import 'package:onfilm_app/representations/widgets/session_list.dart';
+import 'package:onfilm_app/representations/widgets/session_horizontal_list.dart';
 import 'package:onfilm_app/representations/widgets/home/slider_view.dart';
 import 'package:onfilm_app/representations/widgets/home/title_session.dart';
+import 'package:onfilm_app/representations/widgets/session_vertical_list.dart';
 import 'package:provider/provider.dart';
 
 class TvShowScreen extends StatelessWidget {
@@ -23,32 +24,62 @@ class TvShowScreen extends StatelessWidget {
           return const CirculaProgressLoading();
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Trend TV Show
-              _buildTrendTVShow(
-                context,
-                size.width < 600 ? size.height * 0.6 : size.height * 0.45,
-              ),
-              // Airing Today
-              const TitleSession('Airing Today'),
-              _buildAiringTodayTVShow(context),
-              // Top Rated
-              const TitleSession('Top Rated'),
-              _buildTopRatedTVShow(context),
-              // Popular
-              const TitleSession('Popular'),
-              _buildPopularTVShow(context),
-              // On The Air
-              const TitleSession('On The Air'),
-              _buildOnAirTVShow(context),
-            ],
-          ),
-        );
+        if (size.width >= 1200) {
+          return SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Row(
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: _buildContentVertical(context, size),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      const TitleSession('Top Rated'),
+                      Expanded(child: _buildTopRatedTVShowVertical(context)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return _buildContentVertical(context, size);
       },
     );
   }
+}
+
+// Show content with mobile
+Widget _buildContentVertical(BuildContext context, Size size) {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        // Trend TV Show
+        _buildTrendTVShow(
+          context,
+          size.width < 1200 ? size.height * 0.5 : size.height * 0.6,
+        ),
+        // Airing Today
+        const TitleSession('Airing Today'),
+        _buildAiringTodayTVShow(context),
+        if (size.width < 1200)
+          // Top Rated
+          const TitleSession('Top Rated'),
+        if (size.width < 1200) _buildTopRatedTVShowHorizontal(context),
+        // Popular
+        const TitleSession('Popular'),
+        _buildPopularTVShow(context),
+        // On The Air
+        const TitleSession('On The Air'),
+        _buildOnAirTVShow(context),
+      ],
+    ),
+  );
 }
 
 // Trend TVShow
@@ -73,7 +104,7 @@ Widget _buildAiringTodayTVShow(BuildContext context) {
     height: DimenssionConstant.kHeightSectionTVShow,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }
 
@@ -85,12 +116,12 @@ Widget _buildPopularTVShow(BuildContext context) {
     height: DimenssionConstant.kHeightSectionTVShow,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }
 
-// Top Rated TVShow
-Widget _buildTopRatedTVShow(BuildContext context) {
+// Top Rated TVShow Horizontal
+Widget _buildTopRatedTVShowHorizontal(BuildContext context) {
   final response =
       Provider.of<TVShowsProvider>(context, listen: false).responseTopRated;
 
@@ -99,7 +130,20 @@ Widget _buildTopRatedTVShow(BuildContext context) {
         DimenssionConstant.kPandingSmall,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Top),
+        : SessionHorizontalList(response.films, SessionType.Top),
+  );
+}
+
+// Top Rated TVShow Vertical
+Widget _buildTopRatedTVShowVertical(BuildContext context) {
+  final response =
+      Provider.of<TVShowsProvider>(context, listen: false).responseTopRated;
+
+  return SizedBox(
+    height: double.infinity,
+    child: response!.error != null
+        ? ErrorFetchApi(response.error!)
+        : SessionVerticalList(response.films, SessionType.Top),
   );
 }
 
@@ -112,6 +156,6 @@ Widget _buildOnAirTVShow(BuildContext context) {
     height: DimenssionConstant.kHeightSectionTVShow,
     child: response!.error != null
         ? ErrorFetchApi(response.error!)
-        : SessionList(response.films, SessionType.Default),
+        : SessionHorizontalList(response.films, SessionType.Default),
   );
 }

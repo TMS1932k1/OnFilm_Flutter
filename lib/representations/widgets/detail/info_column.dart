@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/constants/text_style_constant.dart';
@@ -13,7 +11,8 @@ import 'package:onfilm_app/providers/detail_film_provider.dart';
 import 'package:onfilm_app/representations/widgets/detail/cast_item.dart';
 import 'package:onfilm_app/representations/widgets/detail/genre_item.dart';
 import 'package:onfilm_app/representations/widgets/detail/info_sesion.dart';
-import 'package:onfilm_app/representations/widgets/session_list.dart';
+import 'package:onfilm_app/representations/widgets/session_horizontal_list.dart';
+import 'package:onfilm_app/representations/widgets/session_vertical_list.dart';
 import 'package:provider/provider.dart';
 
 class InfoColumn extends StatelessWidget {
@@ -151,7 +150,7 @@ class InfoColumn extends StatelessWidget {
                 height: isMovie
                     ? DimenssionConstant.kHeightSectionMovie
                     : DimenssionConstant.kHeightSectionTVShow,
-                child: SessionList(similar, SessionType.Default),
+                child: SessionHorizontalList(similar, SessionType.Default),
               ),
             ),
         ],

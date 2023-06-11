@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/models/video.dart';
 import 'package:onfilm_app/representations/widgets/detail/info_video.dart';
@@ -25,6 +26,7 @@ class VideoScreen extends StatefulWidget {
 class _VideoScreenState extends State<VideoScreen> {
   late YoutubePlayerController _controller;
   int _indexCurrent = 0;
+  var isFullScreen = false;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _VideoScreenState extends State<VideoScreen> {
       initialVideoId: widget.videos[_indexCurrent].key,
       flags: const YoutubePlayerFlags(
         autoPlay: true,
+        forceHD: true,
       ),
     );
   }
@@ -69,55 +72,116 @@ class _VideoScreenState extends State<VideoScreen> {
         return AnimatedOpacity(
           duration: const Duration(milliseconds: 300),
           opacity: 1 - scale.abs(),
-          child: YoutubePlayerBuilder(
-            player: YoutubePlayer(
+          child: _buildContentVertical(
+            YoutubePlayer(
               controller: _controller,
               showVideoProgressIndicator: true,
+              onEnded: (metaData) => setState(() {
+                if (_indexCurrent >= widget.videos.length - 1) {
+                  _indexCurrent = 0;
+                }
+                _indexCurrent++;
+                _controller.load(widget.videos[_indexCurrent].key);
+              }),
+              bottomActions: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isFullScreen = !isFullScreen;
+                    });
+                  },
+                  icon: FaIcon(
+                    isFullScreen
+                        ? FontAwesomeIcons.compress
+                        : FontAwesomeIcons.expand,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            builder: (ctx, player) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: sizeDevice.height * 0.4,
-                    child: player,
-                  ),
-                  const SizedBox(
-                    height: DimenssionConstant.kPandingSmall,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DimenssionConstant.kPandingSmall,
-                    ),
-                    child: InfoVideo(
-                      widget.videos[_indexCurrent],
-                      widget.name,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: DimenssionConstant.kPandingLarge,
-                  ),
-                  Expanded(
-                    child: OptionBar(
-                      [
-                        Option(
-                          title: 'Other Videos',
-                          content: OrtherVideos(
-                            widget.videos,
-                            (video) => _selectNewVideo(video),
-                            _indexCurrent,
-                            widget.name,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
+            sizeDevice,
+            widget.videos,
+            widget.name,
+            _indexCurrent,
+            _selectNewVideo,
+            isFullScreen,
           ),
         );
       },
     );
   }
+}
+
+Widget _buildContentVertical(
+  Widget player,
+  Size size,
+  List<Video> videos,
+  String name,
+  int indexCurrent,
+  void Function(Video video) selectNewVideo,
+  bool isFullScreen,
+) {
+  if (isFullScreen) {
+    return Expanded(child: player);
+  }
+
+  return Row(
+    children: [
+      Expanded(
+        flex: 5,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: player),
+            const SizedBox(
+              height: DimenssionConstant.kPandingSmall,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: DimenssionConstant.kPandingSmall,
+              ),
+              child: InfoVideo(
+                videos[indexCurrent],
+                name,
+              ),
+            ),
+            const SizedBox(
+              height: DimenssionConstant.kPandingLarge,
+            ),
+            if (size.width < 1200)
+              Expanded(
+                child: _buildOtherVideos(
+                    videos, selectNewVideo, indexCurrent, name),
+              )
+          ],
+        ),
+      ),
+      if (size.width >= 1200)
+        Expanded(
+          flex: 2,
+          child: _buildOtherVideos(videos, selectNewVideo, indexCurrent, name),
+        )
+    ],
+  );
+}
+
+Widget _buildOtherVideos(
+  List<Video> videos,
+  void Function(Video video) selectNewVideo,
+  int indexCurrent,
+  String name,
+) {
+  return OptionBar(
+    [
+      Option(
+        title: 'Other Videos',
+        content: OrtherVideos(
+          videos,
+          (video) => selectNewVideo(video),
+          indexCurrent,
+          name,
+        ),
+      ),
+    ],
+  );
 }
