@@ -4,7 +4,7 @@ import 'package:onfilm_app/representations/widgets/detail/video_item.dart';
 
 class OrtherVideos extends StatelessWidget {
   final List<Video> videos;
-  final void Function(Video) selectVideo;
+  final void Function(Video)? selectVideo;
   final int indexCurrent;
   final String name;
 
@@ -24,7 +24,7 @@ class OrtherVideos extends StatelessWidget {
           ...videos
               .map(
                 (video) => GestureDetector(
-                  onTap: () => selectVideo(video),
+                  onTap: selectVideo != null ? () => selectVideo!(video) : null,
                   child: VideoItem(
                     videos.indexOf(video) == indexCurrent,
                     video,
