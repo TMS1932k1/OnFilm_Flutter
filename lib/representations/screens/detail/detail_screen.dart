@@ -5,7 +5,7 @@ import 'package:onfilm_app/models/detail_movie.dart';
 import 'package:onfilm_app/models/detail_tv_show.dart';
 import 'package:onfilm_app/models/film.dart';
 import 'package:onfilm_app/models/video.dart';
-import 'package:onfilm_app/providers/detail_film_provider.dart';
+import 'package:onfilm_app/logic/providers/detail_film_provider.dart';
 import 'package:onfilm_app/representations/screens/detail/info_screen.dart';
 import 'package:onfilm_app/representations/screens/detail/video_screen.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';

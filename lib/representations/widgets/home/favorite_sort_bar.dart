@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/constants/text_style_constant.dart';
-import 'package:onfilm_app/providers/favorite_film_provider.dart';
+import 'package:onfilm_app/logic/providers/favorite_film_provider.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteSortBar extends StatelessWidget {

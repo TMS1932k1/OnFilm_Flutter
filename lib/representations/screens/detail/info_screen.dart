@@ -7,7 +7,7 @@ import 'package:onfilm_app/models/detail_movie.dart';
 import 'package:onfilm_app/models/detail_tv_show.dart';
 import 'package:onfilm_app/models/film.dart';
 import 'package:onfilm_app/models/video.dart';
-import 'package:onfilm_app/providers/detail_film_provider.dart';
+import 'package:onfilm_app/logic/providers/detail_film_provider.dart';
 import 'package:onfilm_app/representations/widgets/detail/backdrop_image.dart';
 import 'package:onfilm_app/representations/widgets/detail/info_bar.dart';
 import 'package:onfilm_app/representations/widgets/detail/info_column.dart';

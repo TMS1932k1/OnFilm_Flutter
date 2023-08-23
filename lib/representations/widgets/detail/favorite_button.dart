@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/models/film.dart';
-import 'package:onfilm_app/providers/detail_film_provider.dart';
+import 'package:onfilm_app/logic/providers/detail_film_provider.dart';
 import 'package:onfilm_app/representations/screens/auth/auth_screen.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';
 import 'package:provider/provider.dart';

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:onfilm_app/providers/favorite_film_provider.dart';
+import 'package:onfilm_app/logic/providers/favorite_film_provider.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';
 import 'package:onfilm_app/representations/widgets/home/favorite_sort_bar.dart';
 import 'package:onfilm_app/representations/widgets/home/grid_film.dart';

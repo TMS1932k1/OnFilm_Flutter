@@ -1,19 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onfilm_app/constants/app_constant.dart';
-import 'package:onfilm_app/providers/detail_film_provider.dart';
-import 'package:onfilm_app/providers/discover_film_provider.dart';
-import 'package:onfilm_app/providers/discover_film_type_provider.dart';
-import 'package:onfilm_app/providers/discover_genre_provider.dart';
-import 'package:onfilm_app/providers/favorite_film_provider.dart';
-import 'package:onfilm_app/providers/genre_provider.dart';
-import 'package:onfilm_app/providers/movies_provider.dart';
-import 'package:onfilm_app/providers/discover_sort_provider.dart';
-import 'package:onfilm_app/providers/search_film_provider.dart';
+import 'package:onfilm_app/logic/blocs/internet_bloc.dart';
+import 'package:onfilm_app/logic/blocs/internet_state.dart';
+import 'package:onfilm_app/logic/providers/detail_film_provider.dart';
+import 'package:onfilm_app/logic/providers/discover_film_provider.dart';
+import 'package:onfilm_app/logic/providers/discover_film_type_provider.dart';
+import 'package:onfilm_app/logic/providers/discover_genre_provider.dart';
+import 'package:onfilm_app/logic/providers/favorite_film_provider.dart';
+import 'package:onfilm_app/logic/providers/genre_provider.dart';
+import 'package:onfilm_app/logic/providers/movies_provider.dart';
+import 'package:onfilm_app/logic/providers/discover_sort_provider.dart';
+import 'package:onfilm_app/logic/providers/search_film_provider.dart';
 import 'package:onfilm_app/representations/screens/auth/auth_screen.dart';
 import 'package:onfilm_app/representations/screens/detail/detail_screen.dart';
+import 'package:onfilm_app/representations/screens/inconnect_screen/inconnect_screen.dart';
 import 'package:onfilm_app/representations/screens/search/search_screen.dart';
-import 'package:onfilm_app/providers/tv_shows_provider.dart';
+import 'package:onfilm_app/logic/providers/tv_shows_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:onfilm_app/constants/colors_constant.dart';
 import 'package:onfilm_app/constants/text_style_constant.dart';
@@ -86,29 +90,41 @@ class MyApp extends StatelessWidget {
           create: (context) => FavoriteFilmProvider(),
         ),
       ],
-      child: MaterialApp(
-        title: 'OnFilm Demo',
-        theme: ThemeData(
-          colorScheme: const ColorScheme.light(
-            primary: ColorsConstant.primaryColor,
-            background: ColorsConstant.backgroundColor,
+      child: BlocProvider(
+        create: (context) => InternetBloc(),
+        child: MaterialApp(
+          title: 'OnFilm Demo',
+          theme: ThemeData(
+            colorScheme: const ColorScheme.light(
+              primary: ColorsConstant.primaryColor,
+              background: ColorsConstant.backgroundColor,
+            ),
+            textTheme: const TextTheme(
+              headlineLarge: TextStyleConstant.headlineLarge,
+              headlineMedium: TextStyleConstant.headlineMedium,
+              headlineSmall: TextStyleConstant.headlineSmall,
+              labelLarge: TextStyleConstant.labelExtra,
+              labelMedium: TextStyleConstant.labelLarge,
+              labelSmall: TextStyleConstant.labelMedium,
+            ),
           ),
-          textTheme: const TextTheme(
-            headlineLarge: TextStyleConstant.headlineLarge,
-            headlineMedium: TextStyleConstant.headlineMedium,
-            headlineSmall: TextStyleConstant.headlineSmall,
-            labelLarge: TextStyleConstant.labelExtra,
-            labelMedium: TextStyleConstant.labelLarge,
-            labelSmall: TextStyleConstant.labelMedium,
+          home: BlocBuilder<InternetBloc, InternetState>(
+            builder: (context, state) {
+              if (state is InconnectedInternetState) {
+                return const InconnectScreen();
+              }
+              return const HomeScreen();
+            },
           ),
+          debugShowCheckedModeBanner: false,
+          routes: {
+            SearchScreen.nameRoute: (context) => const SearchScreen(),
+            DetailScreen.nameRoute: (context) => const DetailScreen(),
+            AuthScreen.nameRoute: (context) => const AuthScreen(),
+            HomeScreen.nameRoute: (context) => const HomeScreen(),
+            InconnectScreen.nameRoute: (context) => const InconnectScreen(),
+          },
         ),
-        home: const HomeScreen(),
-        debugShowCheckedModeBanner: false,
-        routes: {
-          SearchScreen.nameRoute: (context) => const SearchScreen(),
-          DetailScreen.nameRoute: (context) => const DetailScreen(),
-          AuthScreen.nameRoute: (context) => const AuthScreen(),
-        },
       ),
     );
   }

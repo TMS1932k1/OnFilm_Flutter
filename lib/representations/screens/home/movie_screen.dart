@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
-import 'package:onfilm_app/providers/movies_provider.dart';
+import 'package:onfilm_app/logic/providers/movies_provider.dart';
 import 'package:onfilm_app/representations/widgets/circular_progress_loading.dart';
 import 'package:onfilm_app/representations/widgets/home/error_fetch_api.dart';
 import 'package:onfilm_app/representations/widgets/session_horizontal_list.dart';

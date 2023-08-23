@@ -1,17 +1,27 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onfilm_app/constants/app_constant.dart';
 import 'package:onfilm_app/constants/assets_constant.dart';
 import 'package:onfilm_app/constants/colors_constant.dart';
 import 'package:onfilm_app/constants/dimession_constant.dart';
 import 'package:onfilm_app/constants/text_style_constant.dart';
+import 'package:onfilm_app/logic/blocs/internet_bloc.dart';
+import 'package:onfilm_app/logic/blocs/internet_event.dart';
+import 'package:onfilm_app/logic/blocs/internet_state.dart';
 import 'package:onfilm_app/representations/screens/auth/auth_screen.dart';
+import 'package:onfilm_app/representations/screens/inconnect_screen/inconnect_screen.dart';
 import 'package:onfilm_app/representations/screens/search/search_screen.dart';
 import 'package:onfilm_app/representations/widgets/home/icon_user.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  static const nameRoute = '/home';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -20,6 +30,45 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _indexCurrent = 0;
   final _pages = AppConstant.pages;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    startTimer();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (_timer != null) {
+      _timer!.cancel();
+    }
+    super.dispose();
+  }
+
+  void startTimer() {
+    const duration = Duration(seconds: 1);
+    _timer = Timer.periodic(duration, (timer) {
+      getInternetStatus();
+    });
+  }
+
+  Future<void> getInternetStatus() async {
+    bool isConnectInternet;
+    try {
+      final bool result =
+          await const MethodChannel('onfilm.flutter.dev/internet')
+              .invokeMethod('getInternetStatus');
+      isConnectInternet = result;
+    } on PlatformException catch (_) {
+      isConnectInternet = false;
+    }
+
+    if (context.mounted) {
+      BlocProvider.of<InternetBloc>(context)
+          .add(SetInternetEvent(isConnected: isConnectInternet));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,29 +83,40 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: _buildAppBar(context, _pages[_indexCurrent]['name']),
-      backgroundColor: Theme.of(context).colorScheme.background,
-      drawer: size.width >= DimenssionConstant.kMaxWidthMobile
-          ? _buildDrawer(
-              context,
-              size.width * 0.3,
-              pandingTop,
-              _pages,
-              _indexCurrent,
-              updatePage,
-            )
-          : null,
-      body: _pages[_indexCurrent]['page'],
-      bottomNavigationBar: size.width < DimenssionConstant.kMaxWidthMobile
-          ? _buildBottomNav(
-              context,
-              _indexCurrent,
-              _pages,
-              updatePage,
-            )
-          : null,
+    return BlocListener<InternetBloc, InternetState>(
+      listener: (context, state) {
+        if (state is InconnectedInternetState) {
+          Navigator.popUntil(
+            context,
+            (route) => route.isFirst,
+          );
+          Navigator.of(context).pushReplacementNamed(InconnectScreen.nameRoute);
+        }
+      },
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: _buildAppBar(context, _pages[_indexCurrent]['name']),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        drawer: size.width >= DimenssionConstant.kMaxWidthMobile
+            ? _buildDrawer(
+                context,
+                size.width * 0.3,
+                pandingTop,
+                _pages,
+                _indexCurrent,
+                updatePage,
+              )
+            : null,
+        body: _pages[_indexCurrent]['page'],
+        bottomNavigationBar: size.width < DimenssionConstant.kMaxWidthMobile
+            ? _buildBottomNav(
+                context,
+                _indexCurrent,
+                _pages,
+                updatePage,
+              )
+            : null,
+      ),
     );
   }
 }

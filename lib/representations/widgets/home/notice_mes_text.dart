@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:onfilm_app/constants/colors_constant.dart';
 import 'package:onfilm_app/constants/text_style_constant.dart';
 import 'package:onfilm_app/representations/screens/auth/auth_screen.dart';
 
